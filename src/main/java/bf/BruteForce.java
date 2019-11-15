@@ -6,17 +6,17 @@ public class BruteForce {
    private final int numberOFVertices;
    private final int[][]  costPaths;
    private  int cost = Integer.MAX_VALUE;
-   private  int tempCost=0;
+   private  int tempCost;
    private  boolean[] visitedPoint;
    private  int[] path,tempPath;
-   private  int numberOfPoint = 0;
+   private  int numberOfPoint ;
     public BruteForce(int numberOFVertices, int[][] costPaths){
-
         this.numberOFVertices = numberOFVertices;
         this.costPaths = costPaths;
-
     }
     public void algorithm(int pointStart){
+        tempCost=0;
+        numberOfPoint=0;
         path = new int[numberOFVertices];
         tempPath = new int[numberOFVertices];
         visitedPoint = new boolean[numberOFVertices];
@@ -25,7 +25,11 @@ public class BruteForce {
         {
             visitedPoint[i] = false;
         }
+        long start=System.nanoTime();
         TSP(pointStart);
+        long stop=System.nanoTime();
+        System.out.println("Czas wykonania:"+(stop-start));
+
     }
     private void TSP(int pointStart){
         int nextPoint;
@@ -68,6 +72,17 @@ public class BruteForce {
         }
         System.out.println(path[0]);
         System.out.println("Minimalny koszt : " + cost);
+    }
 
+    public int getNumberOFVertices() {
+        return numberOFVertices;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public int[] getPath() {
+        return path;
     }
 }

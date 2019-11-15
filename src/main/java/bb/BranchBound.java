@@ -4,10 +4,10 @@ public class BranchBound {
     private final int numberOFVertices;
     private final int[][] costPaths;
     private int cost = Integer.MAX_VALUE;
-    private int tempCost = 0;
+    private int tempCost ;
     private boolean[] visitedPoint;
     private int[] path, tempPath;
-    private int numberOfPoint = 0;
+    private int numberOfPoint ;
 
     public BranchBound(int numberOFVertices, int[][] costPaths) {
         this.numberOFVertices = numberOFVertices;
@@ -15,7 +15,8 @@ public class BranchBound {
     }
 
     public void algorithm(int pointStart) {
-
+        tempCost=0;
+        numberOfPoint=0;
         path = new int[numberOFVertices + 1];
         tempPath = new int[numberOFVertices];
         visitedPoint = new boolean[numberOFVertices];
@@ -32,17 +33,20 @@ public class BranchBound {
         }
         visitedPoint[0] = true;
         tempPath[0] = 0;
-
+        long start=System.nanoTime();
         TSP(1, 0, bound);
+        long stop=System.nanoTime();
+        System.out.println("Czas wykonania:"+(stop-start));
+
     }
 
-    private void copyPath() {
+    protected void copyPath() {
         for (int i = 0; i < numberOFVertices; i++)
             path[i] = tempPath[i];
         path[numberOFVertices] = tempPath[0];
     }
 
-    private int searchMin(int point) {
+    protected int searchMin(int point) {
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < numberOFVertices; i++) {
 
@@ -102,8 +106,28 @@ public class BranchBound {
 
     }
 
-    private int calculateBound(int verticalPrev, int vertical) {
+    protected int calculateBound(int verticalPrev, int vertical) {
         return
                 ((searchMin(verticalPrev) + searchMin(vertical)) / 2);
+    }
+
+    public int getNumberOFVertices() {
+        return numberOFVertices;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public int[] getPath() {
+        return path;
+    }
+
+    public int[] getTempPath() {
+        return tempPath;
+    }
+
+    public void setTempPath(int[] tempPath) {
+        this.tempPath = tempPath;
     }
 }
