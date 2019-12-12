@@ -33,6 +33,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -82,6 +83,13 @@
       <updated>1575988424550</updated>
       <workItem from="1575988430226" duration="3535000" />
       <workItem from="1575999555401" duration="5019000" />
+      <workItem from="1576057299449" duration="65000" />
+      <workItem from="1576057426016" duration="81000" />
+      <workItem from="1576057631251" duration="5053000" />
+      <workItem from="1576125723840" duration="6312000" />
+      <workItem from="1576132452308" duration="781000" />
+      <workItem from="1576133673680" duration="1667000" />
+      <workItem from="1576148310171" duration="5211000" />
     </task>
     <servers />
   </component>

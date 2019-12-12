@@ -7,119 +7,87 @@ import java.util.List;
 
 public class TspBf
 {
-    private static TspReader tspReader;
-    private static ArrayList<List<Integer>> possibleRoads;
-    private static int theBestRoadValue, possibleRoadItr;
+    private TspReader tspReader;
+    private PermutationIterator permutationGenerator;
+    private ArrayList<Integer> theBestRoad;
+    private int theBestRoadValue;
+    private int thrItr = -1, maxOfItr = 1;
 
-    private static void generateData()
+    public static void main(String[] args) throws FileNotFoundException, InterruptedException
+    {
+        TspBf tspBf = new TspBf();
+    }
+
+    public TspBf() throws FileNotFoundException, InterruptedException
+    {
+        tspReader = new TspReader("graf.txt");
+        tspReader.writeGraph();
+        generateData();
+        long firstTime = System.nanoTime();
+        algorithmBf();
+        long secondTime = System.nanoTime();
+        printScore();
+        long timeScore = secondTime - firstTime;
+        System.out.println("Czas: " + (timeScore));
+    }
+
+    private void generateData()
     {
         ArrayList<Integer> verts = new ArrayList<Integer>();
         for (int i = 0; i < tspReader.getCountOfVert(); i++)
         {
             verts.add(i);
         }
-        possibleRoads = new ArrayList<List<Integer>>();
-        PermutationIterator permutationGenerator = new PermutationIterator(verts);
-        while (permutationGenerator.hasNext())
-        {
-            possibleRoads.add(permutationGenerator.next());
-        }
-    }
-
-
-    private static void algorithmBf()
-    {
-        int temporaryRoadValue;
+        permutationGenerator = new PermutationIterator(verts);
         theBestRoadValue = Integer.MAX_VALUE;
-        possibleRoadItr = 0;
-
-        for (int i = 0; i < possibleRoads.size(); i++)
+        for (int i = 1; i <= tspReader.getCountOfVert(); i++)
         {
-            temporaryRoadValue = 0;
-            for (int j = 0; j < possibleRoads.get(i).size() - 1; j++)
-            {
-                temporaryRoadValue = temporaryRoadValue + tspReader.getGraph()[possibleRoads.get(i).get(j)][possibleRoads.get(i).get(j + 1)];
-            }
-            temporaryRoadValue = temporaryRoadValue + tspReader.getGraph()[possibleRoads.get(i).get(possibleRoads.get(i).size() - 1)][possibleRoads.get(i).get(0)];
-            if (temporaryRoadValue < theBestRoadValue)
-            {
-                theBestRoadValue = temporaryRoadValue;
-                possibleRoadItr = i;
-            }
+            maxOfItr = maxOfItr * i;
         }
     }
 
-    private static void algorithmBf2()
+    private void algorithmBf() throws InterruptedException
     {
-        int temporaryRoadValue;
-        theBestRoadValue = Integer.MAX_VALUE;
-        possibleRoadItr = 0;
-
-        Runnable runnableBf = new Runnable() {
-            @Override
-            public void run() {
-                for (int i = possibleRoads.size() / 2; i < possibleRoads.size(); i++)
-                {
-                    int temporaryRoadValue2;
-
-                    temporaryRoadValue2 = 0;
-                    for (int j = 0; j < possibleRoads.get(i).size() - 1; j++)
-                    {
-                        temporaryRoadValue2 = temporaryRoadValue2 + tspReader.getGraph()[possibleRoads.get(i).get(j)][possibleRoads.get(i).get(j + 1)];
-                    }
-                    temporaryRoadValue2 = temporaryRoadValue2 + tspReader.getGraph()[possibleRoads.get(i).get(possibleRoads.get(i).size() - 1)][possibleRoads.get(i).get(0)];
-                    if (temporaryRoadValue2 < theBestRoadValue)
-                    {
-                        theBestRoadValue = temporaryRoadValue2;
-                        possibleRoadItr = i;
-                    }
-                }
-            }
-        };
-        Thread threadBf = new Thread(runnableBf);
-
-        threadBf.start();
-        for (int i = 0; i < possibleRoads.size() / 2; i++)
+        TspThr[] tspThrs = new TspThr[20];
+        for (int i = 0; i < tspThrs.length; i++)
         {
-            temporaryRoadValue = 0;
-            for (int j = 0; j < possibleRoads.get(i).size() - 1; j++)
+            tspThrs[i] = new TspThr(tspReader, permutationGenerator, this, i + 1);
+        }
+        for (int i = 0; i < tspThrs.length; i++)
+        {
+            tspThrs[i].start();
+        }
+        for (int i = 0; i < tspThrs.length; i++)
+        {
+            tspThrs[i].join();
+        }
+        for (int i = 0; i < tspThrs.length; i++)
+        {
+            if (tspThrs[i].getTheBestRoadValue() < theBestRoadValue)
             {
-                temporaryRoadValue = temporaryRoadValue + tspReader.getGraph()[possibleRoads.get(i).get(j)][possibleRoads.get(i).get(j + 1)];
-            }
-            temporaryRoadValue = temporaryRoadValue + tspReader.getGraph()[possibleRoads.get(i).get(possibleRoads.get(i).size() - 1)][possibleRoads.get(i).get(0)];
-            if (temporaryRoadValue < theBestRoadValue)
-            {
-                theBestRoadValue = temporaryRoadValue;
-                possibleRoadItr = i;
+                theBestRoadValue = tspThrs[i].getTheBestRoadValue();
+                theBestRoad = tspThrs[i].getTheBestRoad();
             }
         }
     }
 
-    private static void printScore()
+    private void printScore()
     {
         System.out.println(theBestRoadValue);
-        for (int i = 0; i < possibleRoads.get(possibleRoadItr).size(); i++)
+        for (int i = 0; i < theBestRoad.size(); i++)
         {
-            System.out.print(possibleRoads.get(possibleRoadItr).get(i));
+            System.out.print(theBestRoad.get(i));
         }
-        System.out.print("0\n");
+        System.out.println(theBestRoad.get(0));
     }
 
-
-
-    public static void main(String[] args) throws FileNotFoundException
+    synchronized List<Integer> getNextRoad()
     {
-        tspReader = new TspReader("graf.txt");
-        tspReader.writeGraph();
-        generateData();
-        for (int i = 0; i < 10; i++)
+        thrItr++;
+        if (thrItr < maxOfItr)
         {
-            long firstTime = System.nanoTime();
-            algorithmBf();
-            long secondTime = System.nanoTime();
-            printScore();
-            long timeScore = secondTime - firstTime;
-            System.out.println("Czas: " + (timeScore));
+            return permutationGenerator.next();
         }
+        return null;
     }
 }
